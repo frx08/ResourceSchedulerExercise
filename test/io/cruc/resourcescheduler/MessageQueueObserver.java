@@ -8,7 +8,7 @@ import java.util.concurrent.CountDownLatch;
 
 /**
  * Observer defined for test purposes, waits for all messages to be sent to the gateway, 
- * and then show the delivery order.
+ * and then shows the delivery order.
  */
 public class MessageQueueObserver implements Observer {
     private CountDownLatch latch;
