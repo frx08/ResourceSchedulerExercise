@@ -7,9 +7,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * {@inheritDoc}
  * This implementation defines the priority by the order 
  * in which the first message is received from a the group.
+ * @see PriorityStrategy
  */
 public class DefaultPriorityStrategy implements PriorityStrategy {
     private Map<Integer, Integer> groupsPriority = new HashMap<Integer, Integer>();
