@@ -49,6 +49,7 @@ public class ResourceScheduler extends Observable {
     public ResourceScheduler(Gateway gateway, int resources, PriorityStrategy priorityStrategy) {
         this.gateway = gateway;
         this.priorityStrategy = priorityStrategy;
+        // priority queue of runnable tasks to implement the multi-resource scheduling priority logic
         BlockingQueue<Runnable> queue = new PriorityBlockingQueue<Runnable>(resources, new PriorityComparator());
         executor = new ThreadPoolExecutor(resources, resources, 60, TimeUnit.SECONDS, queue);
     }
@@ -62,18 +63,23 @@ public class ResourceScheduler extends Observable {
      *          If further Messages belonging to a cancelled group are received.
      */
     public void submitMessage(final MessageImpl msg) throws TerminatedGroupException, CancelledGroupException {
+        // check if own group has been cancelled
         if (cancellatedGroups.contains(msg.getGroupId())) {
             throw new CancelledGroupException(msg);
         }
+        // check if own group has been terminated
         if (terminatedGroups.contains(msg.getGroupId())) {
             throw new TerminatedGroupException(msg);
         }
+        // termination message received
         if (msg.isLast()) {
             terminatedGroups.add(msg.getGroupId());
         }
+        // add message to the priority queue according to the priority strategy defined
         executor.execute(new PriorityRunnable(priorityStrategy.getPriority(msg)) {
             @Override
             public void run() {
+                // notify observer when message is sent to gateway. testing purpose.
                 setChanged();
                 notifyObservers(msg);
                 gateway.send(msg);

@@ -22,8 +22,10 @@ public class ResourceSchedulerTest {
 
     @Test
     public void testDeliveryOrder() throws InterruptedException, TerminatedGroupException, CancelledGroupException {
+        // single resource case as docs
         ResourceScheduler scheduler = new ResourceScheduler(gateway, 1);
 
+        // async response observer
         MessageQueueObserver observer = new MessageQueueObserver(4);
         scheduler.addObserver(observer);
 
@@ -32,6 +34,7 @@ public class ResourceSchedulerTest {
         scheduler.submitMessage(new MessageImpl("3", 2));
         scheduler.submitMessage(new MessageImpl("4", 3));
 
+        // wait for all tasks
         observer.waitUntilUpdateIsCalled();
         scheduler.shutdown();
 
