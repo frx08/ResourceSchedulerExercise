@@ -19,6 +19,28 @@ public class ResourceSchedulerTest {
     public void setup() {
         gateway = new GatewayImpl();
     }
+    
+    @Test(expected = IllegalArgumentException.class)
+    public void testZeroResource() throws InterruptedException {
+        ResourceScheduler scheduler = new ResourceScheduler(gateway, 0);
+        scheduler.shutdown();
+    }
+    
+    @Test
+    public void testSingleResource() throws InterruptedException, TerminatedGroupException, CancelledGroupException {
+        ResourceScheduler scheduler = new ResourceScheduler(gateway, 1);
+        scheduler.submitMessage(new MessageImpl("1", 1));
+        scheduler.submitMessage(new MessageImpl("2", 2));
+        scheduler.shutdown();
+    }
+    
+    @Test
+    public void testMultipleResource() throws InterruptedException, TerminatedGroupException, CancelledGroupException {
+        ResourceScheduler scheduler = new ResourceScheduler(gateway, 5);
+        scheduler.submitMessage(new MessageImpl("1", 1));
+        scheduler.submitMessage(new MessageImpl("2", 2));
+        scheduler.shutdown();
+    }
 
     @Test
     public void testDeliveryOrder() throws InterruptedException, TerminatedGroupException, CancelledGroupException {
@@ -45,7 +67,7 @@ public class ResourceSchedulerTest {
 
     @Test(expected = TerminatedGroupException.class)
     public void testTerminatedGroupException() throws TerminatedGroupException, CancelledGroupException, InterruptedException {
-        ResourceScheduler scheduler = new ResourceScheduler(gateway, 5);
+        ResourceScheduler scheduler = new ResourceScheduler(gateway, 1);
         scheduler.submitMessage(new MessageImpl("1", 1, true));
         scheduler.submitMessage(new MessageImpl("2", 1));
         scheduler.shutdown();
@@ -53,7 +75,7 @@ public class ResourceSchedulerTest {
 
     @Test(expected = CancelledGroupException.class)
     public void testCancelledGroupException() throws TerminatedGroupException, CancelledGroupException, InterruptedException {
-        ResourceScheduler scheduler = new ResourceScheduler(gateway, 5);
+        ResourceScheduler scheduler = new ResourceScheduler(gateway, 1);
         scheduler.cancelGroup(1);
         scheduler.submitMessage(new MessageImpl("1", 1));
         scheduler.shutdown();
