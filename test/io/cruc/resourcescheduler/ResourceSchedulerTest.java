@@ -62,8 +62,10 @@ public class ResourceSchedulerTest {
     @Test
     public void testCustomPriorityStrategy() throws TerminatedGroupException, CancelledGroupException, InterruptedException {
         CustomPriorityStrategy priorityStrategy = new CustomPriorityStrategy();
+        // single resource case with custom strategy
         ResourceScheduler scheduler = new ResourceScheduler(gateway, 1, priorityStrategy);
 
+        // async response observer
         MessageQueueObserver observer = new MessageQueueObserver(3);
         scheduler.addObserver(observer);
 
@@ -71,6 +73,7 @@ public class ResourceSchedulerTest {
         scheduler.submitMessage(new MessageImpl("2", 2));
         scheduler.submitMessage(new MessageImpl("3", 1));
 
+        // wait for all tasks
         observer.waitUntilUpdateIsCalled();
         scheduler.shutdown();
 
